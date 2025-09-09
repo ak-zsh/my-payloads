@@ -3,8 +3,8 @@
     // PASTE YOUR DISCORD WEBHOOK URL HERE
     const discordWebhookUrl = 'https://discord.com/api/webhooks/1411319017452339301/0kk_SFr88XR9mm8v22bjgcDwdCmPeWXqAE4zSnmtrEI8DKf6DFSMJ6srVpn9_aErB37o';
     // PASTE YOUR SLACK WEBHOOK URL HERE
-    const slackWebhookUrl = 'https://hooks.slack.com/services/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';
-
+    const slackWebhookUrl = 'https://hooks.slack.com/services/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';
+    
     // --- MAIN FUNCTION ---
     function run() {
         // First, load the html2canvas library
