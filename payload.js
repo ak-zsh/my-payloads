@@ -1,7 +1,7 @@
 (function() {
     // --- CONFIGURATION ---
     // PASTE YOUR DISCORD WEBHOOK URL HERE
-    const discordWebhookUrl = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
+    const discordWebhookUrl = 'https://discord.com/api/webhooks/1411319017452339301/0kk_SFr88XR9mm8v22bjgcDwdCmPeWXqAE4zSnmtrEI8DKf6DFSMJ6srVpn9_aErB37o';
 
     // --- MAIN FUNCTION ---
     function run() {
