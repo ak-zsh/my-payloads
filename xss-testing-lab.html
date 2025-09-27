@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Payload Testing Lab</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .test-section { margin: 30px 0; padding: 20px; border: 2px solid #ddd; border-radius: 8px; }
+        .test-section h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .vulnerable { border-color: #dc3545; background: #fff5f5; }
+        .safe { border-color: #28a745; background: #f5fff5; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .results { margin-top: 20px; padding: 10px; background: #e9ecef; border-radius: 4px; }
+        .upload-area { border: 2px dashed #007bff; padding: 20px; text-align: center; border-radius: 8px; }
+        .file-display { margin-top: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 XSS Payload Testing Laboratory 🔥</h1>
+        <p><strong>Warning:</strong> This is an intentionally vulnerable testing environment. Use for educational purposes only!</p>
+        
+        <!-- Test 1: Reflected XSS via URL Parameter -->
+        <div class="test-section vulnerable">
+            <h2>Test 1: Reflected XSS (URL Parameter)</h2>
+            <p><strong>Vulnerability:</strong> URL parameter is directly reflected without sanitization</p>
+            <form method="GET">
+                <input type="text" name="search" placeholder="Enter search term..." value="">
+                <button type="submit">Search</button>
+            </form>
+            <div class="results">
+                <strong>Search Results for:</strong> 
+                <span id="search-result"></span>
+            </div>
+        </div>
+
+        <!-- Test 2: Stored XSS via Form Input -->
+        <div class="test-section vulnerable">
+            <h2>Test 2: Stored XSS (Form Input)</h2>
+            <p><strong>Vulnerability:</strong> Form data stored and displayed without sanitization</p>
+            <form id="comment-form">
+                <input type="text" name="username" placeholder="Your name..." required>
+                <textarea name="comment" placeholder="Your comment..." rows="4" required></textarea>
+                <button type="submit">Post Comment</button>
+            </form>
+            <div id="comments-section">
+                <h3>Comments:</h3>
+                <div id="comments-list"></div>
+            </div>
+        </div>
+
+        <!-- Test 3: File Upload XSS -->
+        <div class="test-section vulnerable">
+            <h2>Test 3: File Upload XSS</h2>
+            <p><strong>Vulnerability:</strong> File uploads allowed without proper validation</p>
+            <div class="upload-area">
+                <input type="file" id="file-upload" accept=".svg,.html,.txt,.jpg,.png">
+                <p>Drop your SVG/HTML/image files here or click to browse</p>
+                <button onclick="uploadFile()">Upload File</button>
+            </div>
+            <div id="uploaded-files"></div>
+        </div>
+
+        <!-- Test 4: DOM XSS via Hash Fragment -->
+        <div class="test-section vulnerable">
+            <h2>Test 4: DOM XSS (Hash Fragment)</h2>
+            <p><strong>Vulnerability:</strong> URL hash directly inserted into DOM</p>
+            <div class="results">
+                <strong>Current Page:</strong> <span id="page-title"></span>
+            </div>
+            <p>Try: <code>yoursite.com/test.html#&lt;script&gt;alert('XSS')&lt;/script&gt;</code></p>
+        </div>
+
+        <!-- Test 5: XSS via Cookie -->
+        <div class="test-section vulnerable">
+            <h2>Test 5: XSS via Cookie</h2>
+            <p><strong>Vulnerability:</strong> Cookie value displayed without sanitization</p>
+            <input type="text" id="cookie-input" placeholder="Set cookie value...">
+            <button onclick="setCookie()">Set Cookie</button>
+            <div class="results">
+                <strong>Welcome back:</strong> <span id="cookie-display"></span>
+            </div>
+        </div>
+
+        <!-- Test 6: PostMessage XSS -->
+        <div class="test-section vulnerable">
+            <h2>Test 6: PostMessage XSS</h2>
+            <p><strong>Vulnerability:</strong> PostMessage data processed without validation</p>
+            <textarea id="message-input" placeholder="Enter message to send..." rows="3"></textarea>
+            <button onclick="sendMessage()">Send PostMessage</button>
+            <div id="message-display" class="results"></div>
+        </div>
+
+        <!-- Test 7: Safe Implementation Example -->
+        <div class="test-section safe">
+            <h2>Test 7: Safe Implementation (No XSS)</h2>
+            <p><strong>Security:</strong> Proper input sanitization and encoding</p>
+            <form id="safe-form">
+                <input type="text" name="safe-input" placeholder="Try your payloads here...">
+                <button type="submit">Submit Safely</button>
+            </form>
+            <div id="safe-output" class="results"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test 1: Reflected XSS
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchTerm = urlParams.get('search');
+        if (searchTerm) {
+            // VULNERABLE: Direct insertion without sanitization
+            document.getElementById('search-result').innerHTML = searchTerm;
+        }
+
+        // Test 2: Stored XSS
+        let comments = [];
+        document.getElementById('comment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const comment = {
+                username: formData.get('username'),
+                text: formData.get('comment'),
+                timestamp: new Date().toLocaleString()
+            };
+            comments.push(comment);
+            displayComments();
+            e.target.reset();
+        });
+
+        function displayComments() {
+            const commentsList = document.getElementById('comments-list');
+            // VULNERABLE: Direct HTML insertion
+            commentsList.innerHTML = comments.map(c => 
+                `<div style="border-bottom: 1px solid #eee; padding: 10px;">
+                    <strong>${c.username}</strong> - ${c.timestamp}<br>
+                    ${c.text}
+                </div>`
+            ).join('');
+        }
+
+        // Test 3: File Upload
+        function uploadFile() {
+            const fileInput = document.getElementById('file-upload');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const uploadedFiles = document.getElementById('uploaded-files');
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'file-display';
+                    // VULNERABLE: Direct content insertion
+                    if (file.type.includes('svg') || file.type.includes('html')) {
+                        fileDiv.innerHTML = `<strong>Uploaded: ${file.name}</strong><br>${e.target.result}`;
+                    } else {
+                        fileDiv.innerHTML = `<strong>Uploaded: ${file.name}</strong><br><pre>${e.target.result}</pre>`;
+                    }
+                    uploadedFiles.appendChild(fileDiv);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Test 4: DOM XSS
+        function updatePageTitle() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                // VULNERABLE: Direct hash insertion
+                document.getElementById('page-title').innerHTML = decodeURIComponent(hash);
+            }
+        }
+        window.addEventListener('hashchange', updatePageTitle);
+        updatePageTitle();
+
+        // Test 5: Cookie XSS
+        function setCookie() {
+            const value = document.getElementById('cookie-input').value;
+            document.cookie = `username=${value}; path=/`;
+            displayCookie();
+        }
+
+        function displayCookie() {
+            const cookies = document.cookie.split(';');
+            const usernameCookie = cookies.find(c => c.trim().startsWith('username='));
+            if (usernameCookie) {
+                const username = usernameCookie.split('=')[1];
+                // VULNERABLE: Direct cookie value insertion
+                document.getElementById('cookie-display').innerHTML = decodeURIComponent(username);
+            }
+        }
+        displayCookie();
+
+        // Test 6: PostMessage XSS
+        function sendMessage() {
+            const message = document.getElementById('message-input').value;
+            // Simulate postMessage from iframe or popup
+            window.postMessage(message, '*');
+        }
+
+        window.addEventListener('message', function(event) {
+            // VULNERABLE: Direct message data insertion
+            document.getElementById('message-display').innerHTML = 
+                `<strong>Received:</strong> ${event.data}`;
+        });
+
+        // Test 7: Safe Implementation
+        document.getElementById('safe-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const input = formData.get('safe-input');
+            // SAFE: Proper text content insertion
+            document.getElementById('safe-output').textContent = 
+                `Safe output: ${input}`;
+        });
+
+        // Auto-populate search if URL parameter exists
+        if (searchTerm) {
+            document.querySelector('input[name="search"]').value = searchTerm;
+        }
+    </script>
+</body>
+</html>
