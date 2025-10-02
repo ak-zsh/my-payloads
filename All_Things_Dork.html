@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Recon Hub - Ultimate Dorking & Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .search-section {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #targetInput {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .tab:hover {
+            background: rgba(0, 255, 136, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .dork-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .dork-card {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .dork-card:hover {
+            border-color: #00ff88;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .dork-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .dork-query {
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            word-break: break-all;
+        }
+
+        .platform-section {
+            display: none;
+        }
+
+        .platform-section.active {
+            display: block;
+        }
+
+        .copy-btn {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #00cc6f;
+            transform: scale(1.05);
+        }
+
+        .section-header {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 30px 0 20px 0;
+            border-left: 4px solid #00ff88;
+        }
+
+        .section-header h2 {
+            color: #00ff88;
+            font-size: 1.8em;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quick-link {
+            padding: 10px 20px;
+            background: rgba(0, 100, 255, 0.2);
+            border: 2px solid #0088ff;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .quick-link:hover {
+            background: rgba(0, 100, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00ff88;
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .dork-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 OSINT Recon Hub</h1>
+            <p class="subtitle">Ultimate Google Dorking & Intelligence Gathering Platform</p>
+        </header>
+
+        <div class="search-section">
+            <h3 style="color: #00ff88; margin-bottom: 15px;">🎯 Target Configuration</h3>
+            <div class="search-box">
+                <input type="text" id="targetInput" placeholder="Enter target domain (e.g., example.com)" />
+            </div>
+            <p style="color: #a0a0a0; font-size: 0.9em;">Enter a target domain to auto-populate dork queries. Click any dork card to copy and search.</p>
+        </div>
+
+        <div class="category-tabs" id="categoryTabs">
+            <div class="tab active" data-category="google">Google Dorking</div>
+            <div class="tab" data-category="bugbounty">Bug Bounty Programs</div>
+            <div class="tab" data-category="github">GitHub Intelligence</div>
+            <div class="tab" data-category="shodan">Shodan Queries</div>
+            <div class="tab" data-category="social">Social Media OSINT</div>
+            <div class="tab" data-category="wayback">Wayback Machine</div>
+            <div class="tab" data-category="tools">Quick Tools</div>
+        </div>
+
+        <!-- Google Dorking Section -->
+        <div id="google" class="platform-section active">
+            <div class="section-header">
+                <h2>🔎 Google Dorking Queries</h2>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 20px 0 10px 0;">Infrastructure Discovery</h3>
+            <div class="dork-grid" id="googleInfrastructure"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Sensitive Files & Configurations</h3>
+            <div class="dork-grid" id="googleSensitive"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Authentication & Admin Panels</h3>
+            <div class="dork-grid" id="googleAuth"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">API & Documentation</h3>
+            <div class="dork-grid" id="googleAPI"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Error Messages & Debug Info</h3>
+            <div class="dork-grid" id="googleErrors"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Backup & Temporary Files</h3>
+            <div class="dork-grid" id="googleBackup"></div>
+        </div>
+
+        <!-- Bug Bounty Programs Section -->
+        <div id="bugbounty" class="platform-section">
+            <div class="section-header">
+                <h2>💰 Bug Bounty Program Discovery</h2>
+            </div>
+            <div class="dork-grid" id="bugbountyDorks"></div>
+        </div>
+
+        <!-- GitHub Section -->
+        <div id="github" class="platform-section">
+            <div class="section-header">
+                <h2>💻 GitHub Code Intelligence</h2>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 20px 0 10px 0;">Repository Discovery</h3>
+            <div class="dork-grid" id="githubRepos"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Credentials & Secrets</h3>
+            <div class="dork-grid" id="githubSecrets"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Configuration Files</h3>
+            <div class="dork-grid" id="githubConfigs"></div>
+        </div>
+
+        <!-- Shodan Section -->
+        <div id="shodan" class="platform-section">
+            <div class="section-header">
+                <h2>🌐 Shodan IoT & Asset Discovery</h2>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 20px 0 10px 0;">Organization Assets</h3>
+            <div class="dork-grid" id="shodanOrg"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Service Discovery</h3>
+            <div class="dork-grid" id="shodanServices"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Vulnerable Systems</h3>
+            <div class="dork-grid" id="shodanVuln"></div>
+        </div>
+
+        <!-- Social Media Section -->
+        <div id="social" class="platform-section">
+            <div class="section-header">
+                <h2>👥 Social Media & People Intelligence</h2>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 20px 0 10px 0;">LinkedIn Intelligence</h3>
+            <div class="dork-grid" id="socialLinkedIn"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Twitter/X Discovery</h3>
+            <div class="dork-grid" id="socialTwitter"></div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Reddit Intelligence</h3>
+            <div class="dork-grid" id="socialReddit"></div>
+        </div>
+
+        <!-- Wayback Machine Section -->
+        <div id="wayback" class="platform-section">
+            <div class="section-header">
+                <h2>⏰ Historical Data Mining</h2>
+            </div>
+            <div class="dork-grid" id="waybackUrls"></div>
+        </div>
+
+        <!-- Quick Tools Section -->
+        <div id="tools" class="platform-section">
+            <div class="section-header">
+                <h2>🛠️ Quick Access Tools & Resources</h2>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 20px 0 10px 0;">Search Engines & Platforms</h3>
+            <div class="quick-links">
+                <a href="https://www.google.com" target="_blank" class="quick-link">Google</a>
+                <a href="https://www.shodan.io" target="_blank" class="quick-link">Shodan</a>
+                <a href="https://censys.io" target="_blank" class="quick-link">Censys</a>
+                <a href="https://search.censys.io/" target="_blank" class="quick-link">Censys Search</a>
+                <a href="https://fofa.info" target="_blank" class="quick-link">FOFA</a>
+                <a href="https://crt.sh" target="_blank" class="quick-link">crt.sh</a>
+                <a href="https://web.archive.org" target="_blank" class="quick-link">Wayback Machine</a>
+                <a href="https://wigle.net" target="_blank" class="quick-link">WiGLE</a>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">GitHub & Code Search</h3>
+            <div class="quick-links">
+                <a href="https://github.com/search" target="_blank" class="quick-link">GitHub Search</a>
+                <a href="https://gitlab.com/explore" target="_blank" class="quick-link">GitLab</a>
+                <a href="https://bitbucket.org" target="_blank" class="quick-link">Bitbucket</a>
+                <a href="https://gist.github.com" target="_blank" class="quick-link">GitHub Gists</a>
+                <a href="https://searchcode.com" target="_blank" class="quick-link">SearchCode</a>
+                <a href="https://publicwww.com" target="_blank" class="quick-link">PublicWWW</a>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">DNS & Subdomain Tools</h3>
+            <div class="quick-links">
+                <a href="https://dnsdumpster.com" target="_blank" class="quick-link">DNSDumpster</a>
+                <a href="https://securitytrails.com" target="_blank" class="quick-link">SecurityTrails</a>
+                <a href="https://subdomainfinder.c99.nl" target="_blank" class="quick-link">C99 Subdomain Finder</a>
+                <a href="https://viewdns.info" target="_blank" class="quick-link">ViewDNS</a>
+                <a href="https://dnschecker.org" target="_blank" class="quick-link">DNS Checker</a>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Breach & Leak Databases</h3>
+            <div class="quick-links">
+                <a href="https://haveibeenpwned.com" target="_blank" class="quick-link">Have I Been Pwned</a>
+                <a href="https://dehashed.com" target="_blank" class="quick-link">DeHashed</a>
+                <a href="https://leakcheck.io" target="_blank" class="quick-link">LeakCheck</a>
+                <a href="https://intelx.io" target="_blank" class="quick-link">Intelligence X</a>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Social Media Search</h3>
+            <div class="quick-links">
+                <a href="https://linkedin.com" target="_blank" class="quick-link">LinkedIn</a>
+                <a href="https://twitter.com/search-advanced" target="_blank" class="quick-link">Twitter Advanced Search</a>
+                <a href="https://www.reddit.com/search" target="_blank" class="quick-link">Reddit Search</a>
+                <a href="https://www.facebook.com/search" target="_blank" class="quick-link">Facebook Search</a>
+                <a href="https://osintframework.com" target="_blank" class="quick-link">OSINT Framework</a>
+            </div>
+
+            <h3 style="color: #00ff88; margin: 30px 0 10px 0;">Bug Bounty Platforms</h3>
+            <div class="quick-links">
+                <a href="https://hackerone.com" target="_blank" class="quick-link">HackerOne</a>
+                <a href="https://bugcrowd.com" target="_blank" class="quick-link">Bugcrowd</a>
+                <a href="https://intigriti.com" target="_blank" class="quick-link">Intigriti</a>
+                <a href="https://yeswehack.com" target="_blank" class="quick-link">YesWeHack</a>
+                <a href="https://synack.com" target="_blank" class="quick-link">Synack</a>
+                <a href="https://openbugbounty.org" target="_blank" class="quick-link">OpenBugBounty</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Query copied to clipboard!</div>
+
+    <script>
+        const dorkData = {
+            googleInfrastructure: [
+                { title: "Find Subdomains", query: 'site:*.TARGET' },
+                { title: "All Subdomains & Pages", query: 'site:TARGET' },
+                { title: "Exclude Main Domain", query: 'site:TARGET -www' },
+                { title: "Directory Listings", query: 'site:TARGET intitle:"index of"' },
+                { title: "Apache Directory Listing", query: 'site:TARGET intitle:"Index of /"' },
+                { title: "Parent Directory", query: 'site:TARGET "parent directory"' },
+                { title: "All PDF Documents", query: 'site:TARGET filetype:pdf' },
+                { title: "All Excel Files", query: 'site:TARGET filetype:xls OR filetype:xlsx' },
+                { title: "All Word Documents", query: 'site:TARGET filetype:doc OR filetype:docx' },
+                { title: "All PowerPoint Files", query: 'site:TARGET filetype:ppt OR filetype:pptx' }
+            ],
+            googleSensitive: [
+                { title: "Configuration Files (.env)", query: 'site:TARGET filetype:env' },
+                { title: "Config Files (.conf)", query: 'site:TARGET filetype:conf' },
+                { title: "Config Files (.config)", query: 'site:TARGET ext:config' },
+                { title: "JSON Configs", query: 'site:TARGET filetype:json' },
+                { title: "XML Configs", query: 'site:TARGET filetype:xml' },
+                { title: "YAML Configs", query: 'site:TARGET filetype:yml OR filetype:yaml' },
+                { title: "INI Files", query: 'site:TARGET filetype:ini' },
+                { title: "Properties Files", query: 'site:TARGET filetype:properties' },
+                { title: "SQL Files", query: 'site:TARGET filetype:sql' },
+                { title: "Database Files", query: 'site:TARGET ext:sql OR ext:db OR ext:mdb' }
+            ],
+            googleAuth: [
+                { title: "Admin Panels", query: 'site:TARGET inurl:admin' },
+                { title: "Login Pages", query: 'site:TARGET inurl:login' },
+                { title: "Dashboard Access", query: 'site:TARGET inurl:dashboard' },
+                { title: "Control Panels", query: 'site:TARGET inurl:panel' },
+                { title: "Admin Interface", query: 'site:TARGET intitle:"admin panel"' },
+                { title: "Sign In Pages", query: 'site:TARGET intitle:"sign in"' },
+                { title: "Log In Pages", query: 'site:TARGET intitle:"log in"' },
+                { title: "Administrator Access", query: 'site:TARGET intitle:"administrator"' },
+                { title: "phpMyAdmin", query: 'site:TARGET inurl:phpmyadmin' },
+                { title: "cPanel Login", query: 'site:TARGET inurl:cpanel' }
+            ],
+            googleAPI: [
+                { title: "API Endpoints", query: 'site:TARGET inurl:api' },
+                { title: "API v1 Endpoints", query: 'site:TARGET inurl:v1' },
+                { title: "API v2 Endpoints", query: 'site:TARGET inurl:v2' },
+                { title: "REST API", query: 'site:TARGET inurl:rest' },
+                { title: "Swagger Documentation", query: 'site:TARGET "swagger"' },
+                { title: "GraphQL Endpoints", query: 'site:TARGET "graphql"' },
+                { title: "Postman Collections", query: 'site:TARGET "postman"' },
+                { title: "OpenAPI Docs", query: 'site:TARGET "openapi"' },
+                { title: "API Documentation", query: 'site:TARGET inurl:docs/api' },
+                { title: "API Keys Exposed", query: 'site:TARGET "api_key" OR "apikey"' }
+            ],
+            googleErrors: [
+                { title: "Fatal Errors", query: 'site:TARGET "fatal error"' },
+                { title: "PHP Warnings", query: 'site:TARGET "warning:"' },
+                { title: "MySQL Errors", query: 'site:TARGET "mysql_connect"' },
+                { title: "Oracle Errors", query: 'site:TARGET "ORA-"' },
+                { title: "Microsoft OLE DB", query: 'site:TARGET "Microsoft OLE DB"' },
+                { title: "Java Exceptions", query: 'site:TARGET "java.lang.NullPointerException"' },
+                { title: "PHP Parse Errors", query: 'site:TARGET "PHP Parse error"' },
+                { title: "ASP.NET Errors", query: 'site:TARGET "ASP.NET"' },
+                { title: "Stack Traces", query: 'site:TARGET "stack trace"' },
+                { title: "Debug Information", query: 'site:TARGET "debug=true"' }
+            ],
+            googleBackup: [
+                { title: "Backup Files (.bak)", query: 'site:TARGET filetype:bak' },
+                { title: "Old Files (.old)", query: 'site:TARGET filetype:old' },
+                { title: "Backup Files (.backup)", query: 'site:TARGET filetype:backup' },
+                { title: "Temp Files (.tmp)", query: 'site:TARGET filetype:tmp' },
+                { title: "Swap Files (.swp)", query: 'site:TARGET filetype:swp' },
+                { title: "Log Files", query: 'site:TARGET filetype:log' },
+                { title: "Backup Keywords", query: 'site:TARGET "backup"' },
+                { title: "SQL Dumps", query: 'site:TARGET ext:sql "dump"' },
+                { title: "Archive Files", query: 'site:TARGET ext:zip OR ext:tar OR ext:gz' },
+                { title: "WordPress Backup", query: 'site:TARGET inurl:wp-content/backup' }
+            ],
+            bugbountyDorks: [
+                { title: "Bug Bounty Programs", query: 'inurl:"/bug bounty"' },
+                { title: "Security Pages", query: 'inurl:"/security"' },
+                { title: "security.txt Files", query: 'inurl:security.txt' },
+                { title: "Security Rewards", query: 'inurl:security "reward"' },
+                { title: "Responsible Disclosure", query: 'inurl:"/responsible disclosure"' },
+                { title: "Disclosure + Reward", query: 'inurl:"/responsible-disclosure/" reward' },
+                { title: "Disclosure + Swag", query: 'inurl:"/responsible-disclosure/" swag' },
+                { title: "Disclosure + Bounty", query: 'inurl:"/responsible-disclosure/" bounty' },
+                { title: "Hall of Fame", query: '"responsible disclosure" "hall of fame"' },
+                { title: "Powered by HackerOne", query: '"powered by hackerone" -site:hackerone.com' },
+                { title: "Powered by Bugcrowd", query: '"powered by bugcrowd" -site:bugcrowd.com' },
+                { title: "Submit Vulnerability", query: '"submit vulnerability report"' },
+                { title: "Gov Disclosures", query: 'site:*.gov.* "responsible disclosure"' },
+                { title: "Security Serious", query: 'intext:"we take security very seriously"' },
+                { title: "VDP Reward", query: 'inurl:"vulnerability-disclosure-policy" reward' },
+                { title: "EU Disclosures", query: 'intext:"Vulnerability Disclosure" site:eu' },
+                { title: "NL Security Reports", query: 'site:*.*.nl intext:"security report" reward' },
+                { title: "Powered by YesWeHack", query: '"powered by yeswehack" -site:yeswehack.com' },
+                { title: "Powered by Intigriti", query: '"powered by intigriti" -site:intigriti.com' },
+                { title: "security.txt with Bounty", query: 'inurl:/.well-known/security.txt intext:bounty' },
+                { title: "VDP Programs", query: '"vulnerability disclosure program" AND (bounty OR reward)' },
+                { title: "Monetary Rewards", query: '"responsible disclosure" AND (monetary OR cash)' },
+                { title: "UK Disclosures", query: 'site:*.*.uk intext:"security report" reward' },
+                { title: "DE Bug Bounties", query: 'site:*.*.de inurl:bug inurl:bounty' },
+                { title: "EDU Security Reports", query: 'site:*.edu "responsible disclosure" AND reward' },
+                { title: "Reporting Security Issues", query: 'inurl:reporting-security-issues' }
+            ],
+            githubRepos: [
+                { title: "Organization Repos", query: 'org:TARGET' },
+                { title: "User Repositories", query: 'user:TARGET' },
+                { title: "Repository Search", query: 'TARGET in:name' },
+                { title: "Official Repos", query: 'TARGET official' },
+                { title: "API Repos", query: 'TARGET api' },
+                { title: "Web App Repos", query: 'TARGET web' },
+                { title: "Mobile App Repos", query: 'TARGET mobile' },
+                { title: "Backend Repos", query: 'TARGET backend' },
+                { title: "Frontend Repos", query: 'TARGET frontend' },
+                { title: "Dev Org Repos", query: 'org:TARGET-dev' }
+            ],
+            githubSecrets: [
+                { title: "AWS Access Keys", query: '"aws_access_key" TARGET' },
+                { title: "AWS Secret Keys", query: '"aws_secret_key" TARGET' },
+                { title: "AKIA Keys", query: '"AKIA" TARGET' },
+                { title: "API Keys", query: '"api_key" TARGET' },
+                { title: "Secret Keys", query: '"secret_key" TARGET' },
+                { title: "Private Keys", query: '"private_key" TARGET' },
+                { title: "JWT Secrets", query: '"jwt_secret" TARGET' },
+                { title: "Stripe Keys", query: '"stripe_key" TARGET' },
+                { title: "Database URLs", query: '"database_url" TARGET' },
+                { title: "MongoDB URIs", query: '"mongodb://" TARGET' },
+                { title: "PostgreSQL URIs", query: '"postgresql://" TARGET' },
+                { title: "Password Variables", query: '"password=" TARGET' }
+            ],
+            githubConfigs: [
+                { title: "Environment Files", query: 'filename:.env TARGET' },
+                { title: "Config JSON", query: 'filename:config.json TARGET' },
+                { title: "Secrets YAML", query: 'filename:secrets.yml TARGET' },
+                { title: "Database Config", query: 'filename:database.yml TARGET' },
+                { title: "App Properties", query: 'filename:application.properties TARGET' },
+                { title: "Web Config", query: 'filename:web.config TARGET' },
+                { title: "Settings Python", query: 'filename:settings.py TARGET' },
+                { title: "Docker Compose", query: 'filename:docker-compose.yml TARGET' },
+                { title: "Kubernetes Config", query: 'filename:kubernetes.yaml TARGET' },
+                { title: "CI/CD Travis", query: 'filename:.travis.yml TARGET' }
+            ],
+            shodanOrg: [
+                { title: "Organization Search", query: 'org:"TARGET"' },
+                { title: "Hostname Search", query: 'hostname:TARGET.com' },
+                { title: "SSL Certificate", query: 'ssl:"TARGET.com"' },
+                { title: "HTTP Title", query: 'http.title:"TARGET"' },
+                { title: "Wildcard SSL", query: 'ssl.cert.subject.cn:"*.TARGET.com"' },
+                { title: "Cert Organization", query: 'ssl.cert.subject.o:"TARGET Inc"' }
+            ],
+            shodanServices: [
+                { title: "Web Servers (80,443)", query: 'org:"TARGET" port:80,443' },
+                { title: "HTTP 200 Status", query: 'org:"TARGET" http.status:200' },
+                { title: "SSH Servers", query: 'org:"TARGET" port:22 ssh' },
+                { title: "FTP Servers", query: 'org:"TARGET" port:21 ftp' },
+                { title: "MySQL Databases", query: 'org:"TARGET" port:3306' },
+                { title: "PostgreSQL", query: 'org:"TARGET" port:5432' },
+                { title: "MongoDB", query: 'org:"TARGET" port:27017' },
+                { title: "Redis", query: 'org:"TARGET" port:6379' },
+                { title: "MSSQL", query: 'org:"TARGET" port:1433' },
+                { title: "Elasticsearch", query: 'org:"TARGET" port:9200' }
+            ],
+            shodanVuln: [
+                { title: "Expired Certificates", query: 'org:"TARGET" ssl.cert.expired:true' },
+                { title: "Self-Signed Certs", query: 'org:"TARGET" ssl.cert.self_signed:true' },
+                { title: "Admin Panels", query: 'org:"TARGET" http.title:"Admin"' },
+                { title: "Jenkins Exposed", query: 'org:"TARGET" http.title:"Jenkins"' },
+                { title: "Grafana Exposed", query: 'org:"TARGET" http.title:"Grafana"' },
+                { title: "phpMyAdmin", query: 'org:"TARGET" http.title:"phpMyAdmin"' },
+                { title: "Directory Listing", query: 'org:"TARGET" http.title:"Index of"' },
+                { title: "Development Env", query: 'org:"TARGET" http.html:"development"' },
+                { title: "Staging Env", query: 'org:"TARGET" http.html:"staging"' },
+                { title: "Default Credentials", query: 'org:"TARGET" "default password"' }
+            ],
+            socialLinkedIn: [
+                { title: "Company Employees", query: 'site:linkedin.com "TARGET" engineer' },
+                { title: "Software Engineers", query: '"Software Engineer at TARGET"' },
+                { title: "Security Engineers", query: '"Security Engineer at TARGET"' },
+                { title: "DevOps Engineers", query: '"DevOps Engineer at TARGET"' },
+                { title: "Developers", query: 'site:linkedin.com "TARGET" developer' },
+                { title: "System Admins", query: '"System Administrator at TARGET"' },
+                { title: "Data Scientists", query: '"Data Scientist at TARGET"' },
+                { title: "AWS Engineers", query: '"TARGET" AWS engineer' },
+                { title: "Tech Stack", query: '"TARGET" Python developer' }
+            ],
+            socialTwitter: [
+                { title: "Company Tweets", query: 'from:TARGET' },
+                { title: "Mentions", query: '@TARGET' },
+                { title: "Company Hashtag", query: '#TARGET' },
+                { title: "Domain Mentions", query: '"TARGET.com"' },
+                { title: "Migration Tweets", query: '"TARGET" migration' },
+                { title: "Deployment Info", query: '"TARGET" deployment' },
+                { title: "Downtime Notices", query: '"TARGET" downtime' },
+                { title: "Maintenance Alerts", query: '"TARGET" maintenance' }
+            ],
+            socialReddit: [
+                { title: "Reddit Discussions", query: 'site:reddit.com "TARGET"' },
+                { title: "Company Domain", query: 'site:reddit.com "TARGET.com"' },
+                { title: "Programming Sub", query: '"TARGET" r/programming' },
+                { title: "SysAdmin Sub", query: '"TARGET" r/sysadmin' },
+                { title: "NetSec Sub", query: '"TARGET" r/netsec' },
+                { title: "WebDev Sub", query: '"TARGET" r/webdev' },
+                { title: "Employee Posts", query: '"TARGET" employee reddit' }
+            ],
+            waybackUrls: [
+                { title: "Main Domain History", query: 'https://web.archive.org/web/*/TARGET.com' },
+                { title: "All URLs History", query: 'https://web.archive.org/web/*/TARGET.com/*' },
+                { title: "Admin Subdomain", query: 'https://web.archive.org/web/*/admin.TARGET.com' },
+                { title: "API Subdomain", query: 'https://web.archive.org/web/*/api.TARGET.com' },
+                { title: "Dev Environment", query: 'https://web.archive.org/web/*/dev.TARGET.com' },
+                { title: "Staging Environment", query: 'https://web.archive.org/web/*/staging.TARGET.com' },
+                { title: "Test Environment", query: 'https://web.archive.org/web/*/test.TARGET.com' }
+            ]
+        };
+
+        let currentTarget = '';
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.platform-section').forEach(s => s.classList.remove('active'));
+
+                this.classList.add('active');
+                document.getElementById(this.dataset.category).classList.add('active');
+            });
+        });
+
+        // Target input handler
+        document.getElementById('targetInput').addEventListener('input', function() {
+            currentTarget = this.value.trim().replace(/^https?:\/\//, '').replace(/^www\./, '');
+            renderAllDorks();
+        });
+
+        // Render dork cards
+        function renderAllDorks() {
+            for (const [category, dorks] of Object.entries(dorkData)) {
+                const container = document.getElementById(category);
+                if (container) {
+                    container.innerHTML = '';
+                    dorks.forEach(dork => {
+                        const card = createDorkCard(dork);
+                        container.appendChild(card);
+                    });
+                }
+            }
+        }
+
+        function createDorkCard(dork) {
+            const card = document.createElement('div');
+            card.className = 'dork-card';
+
+            const title = document.createElement('div');
+            title.className = 'dork-title';
+            title.textContent = dork.title;
+
+            const query = document.createElement('div');
+            query.className = 'dork-query';
+            const finalQuery = currentTarget ? dork.query.replace(/TARGET/g, currentTarget) : dork.query;
+            query.textContent = finalQuery;
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = 'Copy & Search';
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                copyAndSearch(finalQuery, dork.query.includes('github') || dork.query.includes('org:') || dork.query.includes('user:'));
+            };
+
+            card.appendChild(title);
+            card.appendChild(query);
+            card.appendChild(copyBtn);
+
+            card.onclick = () => {
+                copyAndSearch(finalQuery, dork.query.includes('github') || dork.query.includes('org:') || dork.query.includes('user:'));
+            };
+
+            return card;
+        }
+
+        function copyAndSearch(query, isGithub) {
+            navigator.clipboard.writeText(query).then(() => {
+                showNotification();
+
+                // Open appropriate search engine
+                let searchUrl;
+                if (isGithub) {
+                    searchUrl = `https://github.com/search?q=${encodeURIComponent(query)}&type=code`;
+                } else if (query.startsWith('org:') || query.includes('hostname:') || query.includes('ssl:')) {
+                    // Shodan query
+                    searchUrl = `https://www.shodan.io/search?query=${encodeURIComponent(query)}`;
+                } else if (query.startsWith('https://web.archive.org')) {
+                    // Wayback machine
+                    searchUrl = query;
+                } else {
+                    // Google dork
+                    searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                }
+
+                window.open(searchUrl, '_blank');
+            });
+        }
+
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        // Initial render
+        renderAllDorks();
+    </script>
+</body>
+</html>
